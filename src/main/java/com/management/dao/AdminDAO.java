@@ -69,48 +69,6 @@ public class AdminDAO {
     }
 
 
-    /*// 添加借阅记录
-    public void addAdmin(Admin record) {
-        String sql = "INSERT INTO library.Admin (id, ISBN, book_name, Borrower, Borrowing_time, Return_time) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, record.getAdminid());
-            stmt.setString(2, record.getAdminname());
-            stmt.setString(3, record.getPassword());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "保存借阅记录数据失败：" + e.getMessage());
-            e.printStackTrace();
-        }
-    }*/
-
-    /*// 编辑借阅记录
-    public void editAdmin(Admin updatedRecord) {
-        String sql = "UPDATE library.Admin SET ISBN = ?, book_name = ?, Borrower = ?, Borrowing_time = ?, Return_time = ? WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, updatedRecord.getISBN());
-            stmt.setString(2, updatedRecord.getBookName());
-            stmt.setString(3, updatedRecord.getBorrower());
-            stmt.setDate(4, new java.sql.Date(updatedRecord.getBorrowingTime().getTime()));
-            stmt.setDate(5, new java.sql.Date(updatedRecord.getReturnTime().getTime()));
-            stmt.setInt(6, updatedRecord.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "更新借阅记录数据失败：" + e.getMessage());
-            e.printStackTrace();
-        }
-    }*/
-
-    // 删除借阅记录
-    /*public void deleteAdmin(int id) {
-        String sql = "DELETE FROM library.Admin WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "删除借阅记录数据失败：" + e.getMessage());
-            e.printStackTrace();
-        }
-    }*/
 
 }
 
