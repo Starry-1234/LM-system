@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(new BorrowRecordView(), "BorrowRecord"); // 借阅记录页面
         contentPanel.add(new UserManagementView(dbConnection), "UserManagement"); // 用户管理页面
         contentPanel.add(new AdminManagementView(), "AdminManagement"); // 管理员管理页面
-        contentPanel.add(new AnnouncementView(), "Announcement"); // 公告信息页面
+        contentPanel.add(new AnnouncementManagementView(dbConnection), "Announcement"); // 公告信息页面
 
         // 默认显示书籍管理页面
         cardLayout.show(contentPanel, "BookManagement");

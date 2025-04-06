@@ -1,7 +1,16 @@
 package com.management;
 
+import com.management.view.LoginFrame;
+
+import javax.swing.*;
+
 public class Main {
     public static void main(String[] args) {
-        com.management.view.LoginFrame loginFrame = new com.management.view.LoginFrame();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new LoginFrame().setVisible(true);
+            }
+        });
     }
 }

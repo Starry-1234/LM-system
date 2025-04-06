@@ -11,12 +11,26 @@ public class User {
     private String role; // USER or ADMIN
     private String email;
 
-    // 构造方法
+
+    // 添加无参构造函数
+    public User() {}
+
+    // 构造方法（加密密码）
     public User(String username, String gender, String password, String role, String email) {
         this.id = generateUniqueId();
         this.username = username;
         this.gender = gender;
         this.password = encryptPassword(password);
+        this.role = role;
+        this.email = email;
+    }
+
+    // 构造方法（不加密密码）
+    public User(String id, String username, String gender, String password, String role, String email) {
+        this.id = id;
+        this.username = username;
+        this.gender = gender;
+        this.password = password; // 不加密密码
         this.role = role;
         this.email = email;
     }

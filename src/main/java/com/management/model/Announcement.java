@@ -8,6 +8,9 @@ public class Announcement {
     private String content;
     private Date publishDate;
 
+    // 添加无参构造函数
+    public Announcement() {}
+
     // 构造方法
     public Announcement(int id, String title, String content, Date publishDate) {
         this.id = id;

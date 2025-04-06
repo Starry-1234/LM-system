@@ -35,12 +35,5 @@ public class LoginFrame extends JFrame {
         cardLayout.show(cardPanel, panelName);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new LoginFrame().setVisible(true);
-            }
-        });
-    }
+
 }

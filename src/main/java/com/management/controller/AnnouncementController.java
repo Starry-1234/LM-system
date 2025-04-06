@@ -1,18 +1,22 @@
 package com.management.controller;
 
+import com.management.dao.AnnouncementDAO;
 import com.management.model.Announcement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AnnouncementController {
+    private AnnouncementDAO announcementDAO;
     private List<Announcement> announcementList;
+    private static final Logger logger = Logger.getLogger(AnnouncementController.class.getName());
 
-    public AnnouncementController() {
+    public AnnouncementController(AnnouncementDAO announcementDAO) {
+        this.announcementDAO = announcementDAO;
         announcementList = new ArrayList<>();
-        // 初始化一些测试数据
-        announcementList.add(new Announcement(1, "系统升级通知", "系统将于2025年3月20日进行升级，请提前保存数据。", new Date()));
-        announcementList.add(new Announcement(2, "新书到馆", "《Java编程思想》已到馆，欢迎借阅。", new Date()));
+        loadAnnouncementsFromDatabase();
     }
 
     // 获取所有公告
@@ -22,8 +26,27 @@ public class AnnouncementController {
 
     // 添加公告
     public void addAnnouncement(Announcement announcement) {
-        announcement.setId(announcementList.size() + 1); // 自动生成ID
         announcementList.add(announcement);
+        announcementDAO.addAnnouncement(announcement);
+    }
+
+    // 编辑公告
+    public void editAnnouncement(Announcement updatedAnnouncement) {
+        for (Announcement announcement : announcementList) {
+            if (announcement.getId() == updatedAnnouncement.getId()) {
+                announcement.setTitle(updatedAnnouncement.getTitle());
+                announcement.setContent(updatedAnnouncement.getContent());
+                announcement.setPublishDate(updatedAnnouncement.getPublishDate());
+                announcementDAO.editAnnouncement(updatedAnnouncement);
+                break;
+            }
+        }
+    }
+
+    // 删除公告
+    public void deleteAnnouncement(int id) {
+        announcementList.removeIf(announcement -> announcement.getId() == id);
+        announcementDAO.deleteAnnouncement(id);
     }
 
     // 根据ID查找公告
@@ -33,6 +56,11 @@ public class AnnouncementController {
                 return announcement;
             }
         }
-        return null;
+        return announcementDAO.getAnnouncementById(id);
+    }
+
+    // 从数据库加载公告数据
+    private void loadAnnouncementsFromDatabase() {
+        announcementList = announcementDAO.getAllAnnouncements();
     }
 }

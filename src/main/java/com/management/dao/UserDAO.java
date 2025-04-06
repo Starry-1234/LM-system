@@ -1,74 +1,71 @@
 package com.management.dao;
 
 import com.management.model.User;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class UserDAO {
-    private Connection conn;
-    private static final Logger logger = Logger.getLogger(UserDAO.class.getName());
+    private Connection connection;
 
-    public UserDAO(Connection conn) {
-        this.conn = conn;
+    public UserDAO(Connection connection) {
+        this.connection = connection;
     }
 
     // 获取所有用户
     public List<User> getAllUsers() {
-        List<User> userList = new ArrayList<>();
+        List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM user";
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                User user = new User(
-                        rs.getString("username"),
-                        rs.getString("gender"),
-                        rs.getString("password"),
-                        rs.getString("role"),
-                        rs.getString("email")
-                );
+                User user = new User();
                 user.setId(rs.getString("id"));
-                userList.add(user);
+                user.setUsername(rs.getString("username"));
+                user.setGender(rs.getString("gender"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+                user.setEmail(rs.getString("email"));
+                users.add(user);
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "加载用户数据失败：" + e.getMessage());
             e.printStackTrace();
         }
-        return userList;
+        return users;
     }
 
     // 添加用户
     public void addUser(User user) {
         String sql = "INSERT INTO user (id, username, gender, password, role, email) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getId());
-            stmt.setString(2, user.getUsername());
-            stmt.setString(3, user.getGender());
-            stmt.setString(4, user.getPassword());
-            stmt.setString(5, user.getRole());
-            stmt.setString(6, user.getEmail());
-            stmt.executeUpdate();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, user.getId());
+            pstmt.setString(2, user.getUsername());
+            pstmt.setString(3, user.getGender());
+            pstmt.setString(4, user.getPassword());
+            pstmt.setString(5, user.getRole());
+            pstmt.setString(6, user.getEmail());
+            pstmt.executeUpdate();
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "保存用户数据失败：" + e.getMessage());
             e.printStackTrace();
         }
     }
 
     // 编辑用户
     public void editUser(User updatedUser) {
-        String sql = "UPDATE user SET username = ?, gender = ?, password = ?, role = ?, email = ? WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, updatedUser.getUsername());
-            stmt.setString(2, updatedUser.getGender());
-            stmt.setString(3, updatedUser.getPassword());
-            stmt.setString(4, updatedUser.getRole());
-            stmt.setString(5, updatedUser.getEmail());
-            stmt.setString(6, updatedUser.getId());
-            stmt.executeUpdate();
+        String sql = "UPDATE user SET id = ?, username = ?, gender = ?, password = ?, role = ?, email = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, updatedUser.getId());
+            pstmt.setString(2, updatedUser.getUsername());
+            pstmt.setString(3, updatedUser.getGender());
+            pstmt.setString(4, updatedUser.getPassword());
+            pstmt.setString(5, updatedUser.getRole());
+            pstmt.setString(6, updatedUser.getEmail());
+            pstmt.setString(7, updatedUser.getId()); // 使用新的 id 进行更新
+            pstmt.executeUpdate();
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "更新用户数据失败：" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -76,11 +73,10 @@ public class UserDAO {
     // 删除用户
     public void deleteUser(String id) {
         String sql = "DELETE FROM user WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, id);
-            stmt.executeUpdate();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            pstmt.executeUpdate();
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "删除用户数据失败：" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -88,22 +84,20 @@ public class UserDAO {
     // 根据ID查找用户
     public User getUserById(String id) {
         String sql = "SELECT * FROM user WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, id);
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                User user = new User(
-                        rs.getString("username"),
-                        rs.getString("gender"),
-                        rs.getString("password"),
-                        rs.getString("role"),
-                        rs.getString("email")
-                );
+                User user = new User();
                 user.setId(rs.getString("id"));
+                user.setUsername(rs.getString("username"));
+                user.setGender(rs.getString("gender"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+                user.setEmail(rs.getString("email"));
                 return user;
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "查找用户数据失败：" + e.getMessage());
             e.printStackTrace();
         }
         return null;

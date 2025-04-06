@@ -56,7 +56,7 @@ public class UserManagementView extends JPanel {
 
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 0; // 只有复选框可编辑
+                return column == 0 || column == 7; // 只有复选框和操作列可编辑
             }
         };
 
@@ -66,6 +66,9 @@ public class UserManagementView extends JPanel {
         userTable.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor(new JCheckBox())); // 操作列编辑按钮
         JScrollPane scrollPane = new JScrollPane(userTable);
         add(scrollPane, BorderLayout.CENTER);
+
+        // 设置表格行高
+        userTable.setRowHeight(30); // 设置行高为30像素
 
         // 调整操作列宽度
         userTable.getColumnModel().getColumn(7).setPreferredWidth(100);
@@ -124,16 +127,19 @@ public class UserManagementView extends JPanel {
     // 显示添加用户对话框
     private void showAddUserDialog() {
         JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), "添加用户", true);
-        dialog.setSize(350, 250);
+        dialog.setSize(350, 300);
         dialog.setLocationRelativeTo(this);
 
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
+        JTextField idField = new JTextField();
         JTextField usernameField = new JTextField();
         JTextField genderField = new JTextField();
         JTextField passwordField = new JTextField();
         JTextField roleField = new JTextField();
         JTextField emailField = new JTextField();
 
+        panel.add(new JLabel("ID:"));
+        panel.add(idField);
         panel.add(new JLabel("用户名:"));
         panel.add(usernameField);
         panel.add(new JLabel("性别:"));
@@ -151,19 +157,20 @@ public class UserManagementView extends JPanel {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String id = idField.getText();
                 String username = usernameField.getText();
                 String gender = genderField.getText();
                 String password = passwordField.getText();
                 String role = roleField.getText();
                 String email = emailField.getText();
 
-                if (username.isEmpty() || gender.isEmpty() || password.isEmpty() || role.isEmpty() || email.isEmpty()) {
+                if (id.isEmpty() || username.isEmpty() || gender.isEmpty() || password.isEmpty() || role.isEmpty() || email.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "所有字段不能为空！");
                     return;
                 }
 
                 // 添加用户
-                User newUser = new User(username, gender, password, role, email);
+                User newUser = new User(id, username, gender, password, role, email);
                 userController.addUser(newUser);
 
                 // 刷新表格
@@ -187,15 +194,14 @@ public class UserManagementView extends JPanel {
 
     // 删除选中的用户
     private void deleteSelectedUsers() {
-        int[] selectedRows = userTable.getSelectedRows();
-        if (selectedRows.length == 0) {
-            JOptionPane.showMessageDialog(this, "请选择要删除的用户！");
-            return;
-        }
-
-        for (int row : selectedRows) {
-            String id = (String) tableModel.getValueAt(row, 1); // 获取用户ID
-            userController.deleteUser(id);
+        int rowCount = tableModel.getRowCount();
+        for (int i = rowCount - 1; i >= 0; i--) {
+            Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            if (isSelected) {
+                String id = (String) tableModel.getValueAt(i, 1); // 获取用户ID
+                userController.deleteUser(id);
+                tableModel.removeRow(i); // 从表格中移除该行
+            }
         }
 
         // 刷新表格
@@ -257,8 +263,9 @@ public class UserManagementView extends JPanel {
         private JButton editButton;
 
         public ButtonRenderer() {
-            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0)); // 设置按钮间距
+            setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0)); // 设置按钮间距为0
             editButton = new JButton("编辑");
+            editButton.setPreferredSize(new Dimension(80, 25)); // 设置按钮大小
             add(editButton);
         }
 
@@ -276,14 +283,16 @@ public class UserManagementView extends JPanel {
 
         public ButtonEditor(JCheckBox checkBox) {
             super(checkBox);
-            panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0)); // 设置按钮间距
+            panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0)); // 设置按钮间距为0
             editButton = new JButton("编辑");
+            editButton.setPreferredSize(new Dimension(80, 25)); // 设置按钮大小
 
             // 编辑按钮事件
             editButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String id = (String) tableModel.getValueAt(currentRow, 1); // 获取用户ID
+                    logger.info("编辑按钮点击，用户ID: " + id); // 添加调试信息
                     showEditUserDialog(id);
                     fireEditingStopped();
                 }
@@ -295,6 +304,7 @@ public class UserManagementView extends JPanel {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             currentRow = row;
+            logger.info("当前行: " + currentRow); // 添加调试信息
             return panel;
         }
 
@@ -314,16 +324,19 @@ public class UserManagementView extends JPanel {
             }
 
             JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), "编辑用户", true);
-            dialog.setSize(350, 250);
+            dialog.setSize(350, 300);
             dialog.setLocationRelativeTo(this);
 
-            JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+            JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
+            JTextField idField = new JTextField(user.getId());
             JTextField usernameField = new JTextField(user.getUsername());
             JTextField genderField = new JTextField(user.getGender());
-            JTextField passwordField = new JTextField(user.getPassword());
+            JTextField passwordField = new JTextField(); // 密码字段留空
             JTextField roleField = new JTextField(user.getRole());
             JTextField emailField = new JTextField(user.getEmail());
 
+            panel.add(new JLabel("ID:"));
+            panel.add(idField);
             panel.add(new JLabel("用户名:"));
             panel.add(usernameField);
             panel.add(new JLabel("性别:"));
@@ -341,20 +354,27 @@ public class UserManagementView extends JPanel {
             confirmButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    String newId = idField.getText();
                     String username = usernameField.getText();
                     String gender = genderField.getText();
                     String password = passwordField.getText();
                     String role = roleField.getText();
                     String email = emailField.getText();
 
-                    if (username.isEmpty() || gender.isEmpty() || password.isEmpty() || role.isEmpty() || email.isEmpty()) {
+                    if (newId.isEmpty() || username.isEmpty() || gender.isEmpty() || role.isEmpty() || email.isEmpty()) {
                         JOptionPane.showMessageDialog(dialog, "所有字段不能为空！");
                         return;
                     }
 
                     // 更新用户信息
-                    User updatedUser = new User(username, gender, password, role, email);
-                    updatedUser.setId(id);
+                    User updatedUser;
+                    if (password.isEmpty()) {
+                        // 如果密码字段为空，则保持原密码不变
+                        updatedUser = new User(newId, username, gender, user.getPassword(), role, email);
+                    } else {
+                        // 如果密码字段不为空，则更新密码
+                        updatedUser = new User(newId, username, gender, password, role, email);
+                    }
                     userController.editUser(updatedUser);
 
                     // 刷新表格
