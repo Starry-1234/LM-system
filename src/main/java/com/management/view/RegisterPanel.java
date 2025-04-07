@@ -4,19 +4,33 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.util.Properties;
 
 public class RegisterPanel extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JTextField emailField;
     private LoginFrame loginFrame;
+    private Properties dbProperties;
 
     public RegisterPanel(LoginFrame loginFrame) {
         this.loginFrame = loginFrame;
         setLayout(new BorderLayout());
+
+        // 读取 db.properties 文件
+        dbProperties = new Properties();
+        try (FileInputStream fis = new FileInputStream("src/main/resources/db.properties")) {
+            dbProperties.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "无法加载数据库配置文件", "错误", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         JLabel titleLabel = new JLabel("注册新用户", JLabel.CENTER);
         titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
@@ -87,7 +101,13 @@ public class RegisterPanel extends JPanel {
                     JOptionPane.showMessageDialog(RegisterPanel.this, "请输入完整信息", "错误", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
-                        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "1920411860z");
+                        String url = dbProperties.getProperty("db.url");
+                        String dbUsername = dbProperties.getProperty("db.username");
+                        String dbPassword = dbProperties.getProperty("db.password");
+                        String driver = dbProperties.getProperty("db.driver");
+
+                        Class.forName(driver);
+                        Connection conn = DriverManager.getConnection(url, dbUsername, dbPassword);
                         String sql = "INSERT INTO login (用户名, 密码, 邮箱) VALUES (?, ?, ?)";
                         PreparedStatement pstmt = conn.prepareStatement(sql);
                         pstmt.setString(1, username);

@@ -4,19 +4,33 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Properties;
 
 public class ResetPasswordPanel extends JPanel {
     private JTextField usernameField;
     private JTextField emailField;
     private LoginFrame loginFrame;
+    private Properties dbProperties;
 
     public ResetPasswordPanel(LoginFrame loginFrame) {
         this.loginFrame = loginFrame;
         setLayout(new BorderLayout());
+
+        // 读取 db.properties 文件
+        dbProperties = new Properties();
+        try (FileInputStream fis = new FileInputStream("src/main/resources/db.properties")) {
+            dbProperties.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "无法加载数据库配置文件", "错误", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         JLabel titleLabel = new JLabel("找回密码", JLabel.CENTER);
         titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
@@ -74,7 +88,13 @@ public class ResetPasswordPanel extends JPanel {
                     JOptionPane.showMessageDialog(ResetPasswordPanel.this, "请输入完整信息", "错误", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
-                        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/library?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=UTF-8", "root", "1920411860z");
+                        String url = dbProperties.getProperty("db.url");
+                        String dbUsername = dbProperties.getProperty("db.username");
+                        String dbPassword = dbProperties.getProperty("db.password");
+                        String driver = dbProperties.getProperty("db.driver");
+
+                        Class.forName(driver);
+                        Connection conn = DriverManager.getConnection(url, dbUsername, dbPassword);
                         String sql = "SELECT * FROM login WHERE 用户名 = ? AND 邮箱 = ?";
                         PreparedStatement pstmt = conn.prepareStatement(sql);
                         pstmt.setString(1, username);
