@@ -2,11 +2,14 @@ package com.management.view;
 
 import com.management.controller.BookController;
 import com.management.model.Book;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -133,6 +136,41 @@ public class BookManagementView extends JPanel {
         });
         contentPanel.add(deleteButton, gbc);
 
+        // 添加查询相关的 UI 元素
+        gbc.gridx = 0;
+        gbc.gridy = 10;
+        JLabel searchLabel = new JLabel("查询书名:");
+        contentPanel.add(searchLabel, gbc);
+
+        gbc.gridx = 1;
+        JTextField searchField = new JTextField();
+        searchField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    searchBooks(searchField.getText());
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
+        contentPanel.add(searchField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 11;
+        JButton searchButton = new JButton("查询");
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchBooks(searchField.getText());
+            }
+        });
+        contentPanel.add(searchButton, gbc);
+
         add(contentPanel, BorderLayout.CENTER);
 
         // Table to display books
@@ -216,6 +254,26 @@ public class BookManagementView extends JPanel {
         JOptionPane.showMessageDialog(this, "书籍已删除");
         loadBooks();
         clearFields();
+    }
+
+    private void searchBooks(String title) {
+        tableModel.setRowCount(0);
+        List<Book> books = bookController.findBooksByTitle(title);
+        if (books != null) {
+            for (Book book : books) {
+                tableModel.addRow(new Object[]{
+                        book.getId(),
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getPublisher(),
+                        new SimpleDateFormat("yyyy-MM-dd").format(book.getPublicationDate()),
+                        book.getStock_Quantity(),
+                        book.getCategory(),
+                        book.getPrice()
+                });
+            }
+        }
     }
 
     private void loadBooks() {

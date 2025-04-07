@@ -72,4 +72,13 @@ public class BookController {
         }
         return null;
     }
+
+    public List<Book> findBooksByTitle(String title) {
+        try {
+            return bookDAO.findBooksByTitle(title);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

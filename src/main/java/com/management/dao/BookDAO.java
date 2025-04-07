@@ -97,6 +97,29 @@ public class BookDAO {
         return books;
     }
 
+    public List<Book> findBooksByTitle(String title) throws SQLException {
+        String sql = "SELECT * FROM books WHERE title LIKE ?";
+        List<Book> books = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + title + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                books.add(new Book(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("author"),
+                        rs.getString("isbn"),
+                        rs.getString("publisher"),
+                        convertSqlDateToUtilDate(rs.getDate("publication_date")),
+                        rs.getInt("stock_quantity"),
+                        rs.getString("category"),
+                        rs.getDouble("price")
+                ));
+            }
+        }
+        return books;
+    }
+
     private Date convertSqlDateToUtilDate(java.sql.Date sqlDate) {
         return sqlDate != null ? new Date(sqlDate.getTime()) : null;
     }
