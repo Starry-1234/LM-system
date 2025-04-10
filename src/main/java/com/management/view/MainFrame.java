@@ -11,9 +11,12 @@ public class MainFrame extends JFrame {
     private JPanel contentPanel;
     private CardLayout cardLayout;
     private Connection dbConnection; // 数据库连接对象
+    private String loggerInUserName;// 登录用户名
+    private AdminLoginDialog adminLoginDialog;
 
-    public MainFrame(Connection connection) {
+    public MainFrame(Connection connection, String username) {
         this.dbConnection = connection; // 初始化数据库连接
+        this.loggerInUserName = username;// 初始化登录用户名
 
         // 设置窗口属性
         setTitle("图书管理系统");
@@ -26,7 +29,7 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         // 添加页面到内容区域，传递数据库连接
-        contentPanel.add(new BookManagementView(), "BookManagement"); // 书籍管理页面
+        contentPanel.add(new BookManagementView(loggerInUserName), "BookManagement"); // 书籍管理页面
         contentPanel.add(new BorrowRecordView(), "BorrowRecord"); // 借阅记录页面
         contentPanel.add(new UserManagementView(dbConnection), "UserManagement"); // 用户管理页面
         contentPanel.add(new AdminManagementView(), "AdminManagement"); // 管理员管理页面
@@ -37,6 +40,10 @@ public class MainFrame extends JFrame {
 
         // 登录成功后显示侧边栏和内容区域
         showMainUI();
+
+        // 创建管理员登录对话框
+        adminLoginDialog = new AdminLoginDialog(this, dbConnection);
+
     }
 
     // 显示主界面（侧边栏 + 内容区域）
@@ -72,9 +79,12 @@ public class MainFrame extends JFrame {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(contentPanel, cardName); // 切换到对应的页面
-            }
-        });
+                if ("AdminManagement".equals(cardName)) {
+                    adminLoginDialog.setVisible(true);
+                } else {
+                    cardLayout.show(contentPanel, cardName); // 切换到对应的页面
+                }
+            }        });
         sideBar.add(button);
         sideBar.add(Box.createRigidArea(new Dimension(0, 10))); // 添加间距
     }

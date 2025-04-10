@@ -33,8 +33,29 @@ public class BorrowRecordController {
         }
     }
 
+    // 获取所有借阅记录
     public List<BorrowRecord> getAllBorrowRecords() {
         return borrowRecordDAO.getAllBorrowRecords();
+    }
+
+    // 根据借阅者姓名搜索借阅记录
+    public List<BorrowRecord> getBorrowRecordsByBorrower(String borrowerName) {
+        return borrowRecordDAO.searchBorrowRecordsByBorrower(borrowerName);
+    }
+
+    // 根据图书名称搜索借阅记录
+    public List<BorrowRecord> getBorrowRecordsByBookName(String bookName) {
+        return borrowRecordDAO.searchBorrowRecordsByBookName(bookName);
+    }
+
+    // 根据ISBN搜索借阅记录
+    public List<BorrowRecord> getBorrowRecordsByIsbn(String isbn) {
+        return borrowRecordDAO.searchBorrowRecordsByisbn(isbn);
+    }
+
+    // 添加借阅记录
+    public void addBorrowRecord(BorrowRecord borrowRecord) {
+        borrowRecordDAO.addBorrowRecord(borrowRecord);
     }
 
 }

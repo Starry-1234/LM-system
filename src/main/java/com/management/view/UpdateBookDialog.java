@@ -10,17 +10,17 @@ import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
-public class AddBookDialog extends JDialog {
+public class UpdateBookDialog extends JDialog {
     private JTextField titleField, authorField, isbnField, publisherField, publicationDateField, stockQuantityField, categoryField, priceField;
     private JButton confirmButton, cancelButton;
     private BookController bookController;
+    private Book book;
 
-
-    public AddBookDialog(JFrame parent, BookController bookController) {
-        super(parent, "添加书籍", true);
+    public UpdateBookDialog(JFrame parent, BookController bookController, Book book) {
+        super(parent, "修改书籍", true);
         this.bookController = bookController;
+        this.book = book;
         setSize(400, 300);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
@@ -28,35 +28,35 @@ public class AddBookDialog extends JDialog {
         // 创建面板
         JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
         panel.add(new JLabel("书名:"));
-        titleField = new JTextField();
+        titleField = new JTextField(book.getTitle());
         panel.add(titleField);
 
         panel.add(new JLabel("作者:"));
-        authorField = new JTextField();
+        authorField = new JTextField(book.getAuthor());
         panel.add(authorField);
 
         panel.add(new JLabel("ISBN:"));
-        isbnField = new JTextField();
+        isbnField = new JTextField(book.getIsbn());
         panel.add(isbnField);
 
         panel.add(new JLabel("出版社:"));
-        publisherField = new JTextField();
+        publisherField = new JTextField(book.getPublisher());
         panel.add(publisherField);
 
         panel.add(new JLabel("出版日期:"));
-        publicationDateField = new JTextField();
+        publicationDateField = new JTextField(new SimpleDateFormat("yyyy-MM-dd").format(book.getPublicationDate()));
         panel.add(publicationDateField);
 
         panel.add(new JLabel("库存:"));
-        stockQuantityField = new JTextField();
+        stockQuantityField = new JTextField(String.valueOf(book.getStock_Quantity()));
         panel.add(stockQuantityField);
 
         panel.add(new JLabel("分类:"));
-        categoryField = new JTextField();
+        categoryField = new JTextField(book.getCategory());
         panel.add(categoryField);
 
         panel.add(new JLabel("价格:"));
-        priceField = new JTextField();
+        priceField = new JTextField(String.valueOf(book.getPrice()));
         panel.add(priceField);
 
         add(panel, BorderLayout.CENTER);
@@ -69,7 +69,7 @@ public class AddBookDialog extends JDialog {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addBook();
+                updateBook();
             }
         });
 
@@ -85,7 +85,7 @@ public class AddBookDialog extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void addBook() {
+    private void updateBook() {
         String title = titleField.getText();
         String author = authorField.getText();
         String isbn = isbnField.getText();
@@ -111,11 +111,17 @@ public class AddBookDialog extends JDialog {
             return;
         }
 
-        // 添加书籍
-        Book book = new Book(0, title, author, isbn, publisher, publicationDate, stock_Quantity, category, price);
-        bookController.addBook(book);
+        // 更新书籍
+        book.setTitle(title);
+        book.setAuthor(author);
+        book.setIsbn(isbn);
+        book.setPublisher(publisher);
+        book.setPublicationDate(publicationDate);
+        book.setStock_Quantity(stock_Quantity);
+        book.setCategory(category);
+        book.setPrice(price);
+        bookController.updateBook(book);
 
         dispose();
     }
-
 }

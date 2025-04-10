@@ -11,6 +11,13 @@ public class Admin {
         this.password = password;
     }
 
+    // 构造带id的构造函数
+    public Admin(int adminid, String adminname, String password) {
+        this.adminid = adminid;
+        this.adminname = adminname;
+        this.password = password;
+    }
+
     // getter and setter
     public String getAdminname() {
         return adminname;

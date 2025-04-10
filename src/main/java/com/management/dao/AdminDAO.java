@@ -18,11 +18,12 @@ public class AdminDAO {
     // 获取所有用户
     public List<Admin> getAllAdmins() {
         List<Admin> admins = new ArrayList<>();
-        String sql = "SELECT * FROM library.admins        ";
+        String sql = "SELECT * FROM library.admins ORDER BY admin_id";
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Admin record = new Admin(
+                        rs.getInt("admin_id"),
                         rs.getString("admin_name"),
                         rs.getString("admin_password")
                 );

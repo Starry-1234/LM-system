@@ -24,11 +24,11 @@ public class BorrowRecordDAO {
             while (rs.next()) {
                 BorrowRecord record = new BorrowRecord(
                         rs.getInt("id"),
-                        rs.getString("ISBN"),
+                        rs.getString("isbn"),
                         rs.getString("book_name"),
-                        rs.getString("Borrower"),
-                        rs.getDate("Borrowing_time"),
-                        rs.getDate("Return_time")
+                        rs.getString("borrower"),
+                        rs.getDate("borrowing_time"),
+                        rs.getDate("return_time")
                 );
                 borrowRecords.add(record);
             }
@@ -39,59 +39,92 @@ public class BorrowRecordDAO {
         return borrowRecords;
     }
 
-    // 添加借阅记录
-    public void addBorrowRecord(BorrowRecord record) {
-        String sql = "INSERT INTO library.BorrowRecord (id, ISBN, book_name, Borrower, Borrowing_time, Return_time) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, record.getId());
-            stmt.setString(2, record.getISBN());
-            stmt.setString(3, record.getBookName());
-            stmt.setString(4, record.getBorrower());
-            stmt.setDate(5, new java.sql.Date(record.getBorrowingTime().getTime()));
-            stmt.setDate(6, new java.sql.Date(record.getReturnTime().getTime()));
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "保存借阅记录数据失败：" + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+    // 根据借阅者姓名搜索借阅记录
+    public List<BorrowRecord> searchBorrowRecordsByBorrower(String borrower) {
+        List<BorrowRecord> borrowRecords = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM library.BorrowRecord ");
+        List<Object> params = new ArrayList<>();
 
-    // 编辑借阅记录
-    public void editBorrowRecord(BorrowRecord updatedRecord) {
-        String sql = "UPDATE library.BorrowRecord SET ISBN = ?, book_name = ?, Borrower = ?, Borrowing_time = ?, Return_time = ? WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, updatedRecord.getISBN());
-            stmt.setString(2, updatedRecord.getBookName());
-            stmt.setString(3, updatedRecord.getBorrower());
-            stmt.setDate(4, new java.sql.Date(updatedRecord.getBorrowingTime().getTime()));
-            stmt.setDate(5, new java.sql.Date(updatedRecord.getReturnTime().getTime()));
-            stmt.setInt(6, updatedRecord.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "更新借阅记录数据失败：" + e.getMessage());
-            e.printStackTrace();
+        if (borrower != null && !borrower.isEmpty()) {
+            sql.append(" WHERE borrower like ?");
+            params.add("%" + borrower + "%");
         }
-    }
 
-    // 删除借阅记录
-    public void deleteBorrowRecord(int id) {
-        String sql = "DELETE FROM library.BorrowRecord WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "删除借阅记录数据失败：" + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // 根据ID查找借阅记录
-    public BorrowRecord getBorrowRecordById(int id) {
-        String sql = "SELECT * FROM library.BorrowRecord WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
+                BorrowRecord record = new BorrowRecord(
+                        rs.getInt("id"),
+                        rs.getString("isbn"),
+                        rs.getString("book_name"),
+                        rs.getString("borrower"),
+                        rs.getDate("borrowing_time"),
+                        rs.getDate("return_time")
+                );
+                borrowRecords.add(record);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "查询借阅记录数据失败：" + e.getMessage());
+            e.printStackTrace();
+        }
+        return borrowRecords;
+    }
+
+    // 根据书名搜索借阅记录
+    public List<BorrowRecord> searchBorrowRecordsByBookName(String bookName) {
+        List<BorrowRecord> borrowRecords = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM library.BorrowRecord ");
+        List<Object> params = new ArrayList<>();
+
+        if (bookName != null && !bookName.isEmpty()) {
+            sql.append(" WHERE book_name like ?");
+            params.add("%" + bookName + "%");
+        }
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                BorrowRecord record = new BorrowRecord(
+                        rs.getInt("id"),
+                        rs.getString("isbn"),
+                        rs.getString("book_name"),
+                        rs.getString("borrower"),
+                        rs.getDate("borrowing_time"),
+                        rs.getDate("return_time")
+                );
+                borrowRecords.add(record);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "查询借阅记录数据失败：" + e.getMessage());
+            e.printStackTrace();
+        }
+        return borrowRecords;
+    }
+
+    // 根据ISBN搜索借阅记录
+    public List<BorrowRecord> searchBorrowRecordsByisbn(String isbn) {
+        List<BorrowRecord> borrowRecords = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM library.BorrowRecord ");
+        List<Object> params = new ArrayList<>();
+
+        // 不为空时才作用
+        if (isbn != null && !isbn.isEmpty()) {
+            sql.append(" WHERE isbn like ?");
+            params.add("%" + isbn + "%");
+        }
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
                 BorrowRecord record = new BorrowRecord(
                         rs.getInt("id"),
                         rs.getString("ISBN"),
@@ -100,13 +133,28 @@ public class BorrowRecordDAO {
                         rs.getDate("Borrowing_time"),
                         rs.getDate("Return_time")
                 );
-                return record;
+                borrowRecords.add(record);
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "查找借阅记录数据失败：" + e.getMessage());
+            logger.log(Level.SEVERE, "查询借阅记录数据失败：" + e.getMessage());
             e.printStackTrace();
         }
-        return null;
+        return borrowRecords;
+    }
+
+    // 添加借阅记录
+    public void addBorrowRecord(BorrowRecord borrowRecord) {
+        String sql = "INSERT INTO library.BorrowRecord (isbn, book_name, borrower, borrowing_time) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, borrowRecord.getISBN());
+            pstmt.setString(2, borrowRecord.getBookName());
+            pstmt.setString(3, borrowRecord.getBorrower());
+            pstmt.setDate(4, new java.sql.Date(borrowRecord.getBorrowingTime().getTime()));
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "添加借阅记录失败：" + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
 

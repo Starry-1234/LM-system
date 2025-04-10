@@ -2,6 +2,7 @@ package com.management.view;
 
 import com.management.controller.AdminController;
 import com.management.controller.BookController;
+import com.management.controller.BorrowRecordController;
 import com.management.model.Admin;
 import com.management.model.Book;
 import com.management.dao.BookDAO;
@@ -17,9 +18,9 @@ import java.util.Date;
 import java.util.List;
 
 public class AdminManagementView extends JPanel {
-    private JTextField idField, titleField, authorField, isbnField, adminNameField, adminPasswordField;
-    private JButton  searchButton, addAdminButton, searchBorrowRecordsButton;
-    private JTextArea resultArea;
+    private JTextField titleField;
+    private JTextField authorField;
+    private JTextField isbnField;
     private AdminController adminController;
     private BookController bookController;
     private JTable adminTable;// 管理員表
@@ -31,6 +32,7 @@ public class AdminManagementView extends JPanel {
     private JTextField stockQuantityField;
     private JTextField categoryField;
     private JTextField priceField;
+    private BorrowRecordController borrowrecordController;
 
     public AdminManagementView() {
         /* 整体布局采用BorderLayout
@@ -95,6 +97,7 @@ public class AdminManagementView extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showAddBookDialog();
+                loadBooks();
             }
         });
         adminPanel.add(addBookButton, gbc);
@@ -106,7 +109,8 @@ public class AdminManagementView extends JPanel {
         updateBookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateBook();
+                showUpdateBookDialog();
+                loadBooks();
             }
         });
         adminPanel.add(updateBookButton, gbc);
@@ -118,25 +122,10 @@ public class AdminManagementView extends JPanel {
         deleteBookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(AdminManagementView.this);
-                AddBookDialog addBookDialog = new AddBookDialog(parentFrame, bookController);
-                addBookDialog.setVisible(true);
                 deleteBook();
             }
         });
         adminPanel.add(deleteBookButton, gbc);
-
-        // 查找书籍按钮
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        JButton selectBookButton = new JButton("查找书籍");
-        adminPanel.add(selectBookButton, gbc);
-
-        // 查找借阅记录按钮
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        JButton selectBorrowRecordButton = new JButton("查找借阅记录");
-        adminPanel.add(selectBorrowRecordButton, gbc);
 
         // 中部
         add(adminPanel, BorderLayout.CENTER);
@@ -199,10 +188,12 @@ public class AdminManagementView extends JPanel {
         }
     }
 
-    //添加管理员
-    private void addAdmin() {
-        String adminName = adminNameField.getText();
-        String adminPassword = adminPasswordField.getText();
+    // 显示添加管理员对话框
+    private void showAddAdminDialog() {
+        JFrame parentFrame2 = (JFrame) SwingUtilities.getWindowAncestor(this);
+        AddAdminDialog addAdminDialog = new AddAdminDialog(parentFrame2, adminController);
+        addAdminDialog.setVisible(true);
+        loadAdmins();
     }
 
     //删除管理员
@@ -226,14 +217,8 @@ public class AdminManagementView extends JPanel {
         addBookDialog.setVisible(true);
     }
 
-    private void showAddAdminDialog() {
-        JFrame parentFrame2 = (JFrame) SwingUtilities.getWindowAncestor(this);
-        AddAdminDialog addAdminDialog = new AddAdminDialog(parentFrame2, adminController);
-        addAdminDialog.setVisible(true);
-    }
-
-    // 更新书籍
-    private void updateBook() {
+    // 显示修改书籍对话框
+    private void showUpdateBookDialog() {
         int selectedRow = bookTable.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "请选择要更新的书籍");
@@ -241,29 +226,17 @@ public class AdminManagementView extends JPanel {
         }
 
         int id = (int) bookTableModel.getValueAt(selectedRow, 0);
-        String title = titleField.getText();
-        String author = authorField.getText();
-        String isbn = isbnField.getText();
-        String publisher = publisherField.getText();
-        String publicationDateString = publicationDateField.getText();
-        int stock_Quantity = Integer.parseInt(stockQuantityField.getText());
-        String category = categoryField.getText();
-        double price = Double.parseDouble(priceField.getText());
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date publicationDate = null;
-        try {
-            publicationDate = dateFormat.parse(publicationDateString);
-        } catch (ParseException ex) {
-            JOptionPane.showMessageDialog(this, "日期格式错误，请使用 yyyy-MM-dd 格式");
-            return;
+        Book book = bookController.getBookById(id);
+        if (book != null) {
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            UpdateBookDialog updateBookDialog = new UpdateBookDialog(parentFrame, bookController, book);
+            updateBookDialog.setVisible(true);
+            loadBooks();
+        } else {
+            JOptionPane.showMessageDialog(this, "书籍信息获取失败");
         }
-
-        Book book = new Book(id, title, author, isbn, publisher, publicationDate, stock_Quantity, category, price);
-        bookController.updateBook(book);
-        JOptionPane.showMessageDialog(this, "书籍已更新");
-        loadBooks();
     }
+
 
     // 删除书籍
     private void deleteBook() {
@@ -277,6 +250,7 @@ public class AdminManagementView extends JPanel {
         bookController.deleteBook(id);
         JOptionPane.showMessageDialog(this, "书籍已删除");
         loadBooks();
+
     }
 
 

@@ -20,6 +20,15 @@ public class BorrowRecord {
         this.returnTime = returnTime;
     }
 
+    // 不带id的构造函数
+    public BorrowRecord(String ISBN, String bookName, String borrower, Date borrowingTime) {
+        this.ISBN = ISBN;
+        this.bookName = bookName;
+        this.borrower = borrower;
+        this.borrowingTime = borrowingTime;
+
+    }
+
     // Getter 和 Setter 方法
     public int getId() {
         return id;
