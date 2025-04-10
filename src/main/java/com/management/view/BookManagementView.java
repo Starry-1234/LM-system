@@ -220,30 +220,48 @@ public class BookManagementView extends JPanel {
         }
 
         int id = (int) tableModel.getValueAt(selectedRow, 0);
-        String title = titleField.getText();
-        String author = authorField.getText();
-        String isbn = isbnField.getText();
-        String publisher = publisherField.getText();
-        String publicationDateString = publicationDateField.getText();
-        int stock_Quantity = Integer.parseInt(stockQuantityField.getText());
-        String category = categoryField.getText();
-        double price = Double.parseDouble(priceField.getText());
+        Book book = new Book();
+        book.setId(id);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date publicationDate = null;
-        try {
-            publicationDate = dateFormat.parse(publicationDateString);
-        } catch (ParseException ex) {
-            JOptionPane.showMessageDialog(this, "日期格式错误，请使用 yyyy-MM-dd 格式");
-            return;
+        if (!titleField.getText().isEmpty()) {
+            book.setTitle(titleField.getText());
+        }
+        if (!authorField.getText().isEmpty()) {
+            book.setAuthor(authorField.getText());
+        }
+        if (!isbnField.getText().isEmpty()) {
+            book.setIsbn(isbnField.getText());
+        }
+        if (!publisherField.getText().isEmpty()) {
+            book.setPublisher(publisherField.getText());
+        }
+        if (!publicationDateField.getText().isEmpty()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date publicationDate = null;
+            try {
+                publicationDate = dateFormat.parse(publicationDateField.getText());
+            } catch (ParseException ex) {
+                JOptionPane.showMessageDialog(this, "日期格式错误，请使用 yyyy-MM-dd 格式");
+                return;
+            }
+            book.setPublicationDate(publicationDate);
+        }
+        if (!stockQuantityField.getText().isEmpty()) {
+            book.setStock_Quantity(Integer.parseInt(stockQuantityField.getText()));
+        }
+        if (!categoryField.getText().isEmpty()) {
+            book.setCategory(categoryField.getText());
+        }
+        if (!priceField.getText().isEmpty()) {
+            book.setPrice(Double.parseDouble(priceField.getText()));
         }
 
-        Book book = new Book(id, title, author, isbn, publisher, publicationDate, stock_Quantity, category, price);
         bookController.updateBook(book);
         JOptionPane.showMessageDialog(this, "书籍已更新");
         loadBooks();
         clearFields();
     }
+
 
     private void deleteBook() {
         int selectedRow = bookTable.getSelectedRow();

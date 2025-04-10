@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class BookDAO {
     private Connection conn;
@@ -30,17 +31,29 @@ public class BookDAO {
     }
 
     public void updateBook(Book book) throws SQLException {
-        String sql = "UPDATE books SET title = ?, author = ?, isbn = ?, publisher = ?, publication_date = ?, stock_quantity = ?, category = ?, price = ? WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, book.getTitle());
-            stmt.setString(2, book.getAuthor());
-            stmt.setString(3, book.getIsbn());
-            stmt.setString(4, book.getPublisher());
-            stmt.setDate(5, new java.sql.Date(book.getPublicationDate().getTime()));
-            stmt.setInt(6, book.getStock_Quantity());
-            stmt.setString(7, book.getCategory());
-            stmt.setDouble(8, book.getPrice());
-            stmt.setInt(9, book.getId());
+        Map<String, Object> modifiedFields = book.getModifiedFields();
+        if (modifiedFields.isEmpty()) {
+            return; // 没有字段被修改，直接返回
+        }
+
+        StringBuilder sql = new StringBuilder("UPDATE books SET ");
+        int paramIndex = 1;
+        for (String fieldName : modifiedFields.keySet()) {
+            sql.append(fieldName).append(" = ?, ");
+        }
+        // 移除最后一个逗号和空格
+        sql.setLength(sql.length() - 2);
+        sql.append(" WHERE id = ?");
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (Object value : modifiedFields.values()) {
+                if (value instanceof Date) {
+                    stmt.setDate(paramIndex++, new java.sql.Date(((Date) value).getTime()));
+                } else {
+                    stmt.setObject(paramIndex++, value);
+                }
+            }
+            stmt.setInt(paramIndex, book.getId());
             stmt.executeUpdate();
         }
     }
