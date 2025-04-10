@@ -95,7 +95,7 @@ public class ResetPasswordPanel extends JPanel {
 
                         Class.forName(driver);
                         Connection conn = DriverManager.getConnection(url, dbUsername, dbPassword);
-                        String sql = "SELECT * FROM login WHERE 用户名 = ? AND 邮箱 = ?";
+                        String sql = "SELECT * FROM admins WHERE admin_name = ? AND email = ?";
                         PreparedStatement pstmt = conn.prepareStatement(sql);
                         pstmt.setString(1, username);
                         pstmt.setString(2, email);

@@ -4,18 +4,21 @@ public class Admin {
     private int adminid;
     private String adminname;
     private String password;
+    private String email;
 
     // 构造函数
-    public Admin( String adminname, String password) {
+    public Admin( String adminname, String password, String email) {
         this.adminname = adminname;
         this.password = password;
+        this.email = email;
     }
 
     // 构造带id的构造函数
-    public Admin(int adminid, String adminname, String password) {
+    public Admin(int adminid, String adminname, String password, String email) {
         this.adminid = adminid;
         this.adminname = adminname;
         this.password = password;
+        this.email = email;
     }
 
     // getter and setter
@@ -43,6 +46,13 @@ public class Admin {
         this.password = password;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
 
 }

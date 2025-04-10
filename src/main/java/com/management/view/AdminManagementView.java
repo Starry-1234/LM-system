@@ -54,7 +54,7 @@ public class AdminManagementView extends JPanel {
         adminPanel.add(buttonPanel, BorderLayout.NORTH);
 
         // 管理员表格
-        adminTableModel = new DefaultTableModel(new Object[]{"管理员ID", "管理员姓名", "管理员密码"}, 0);
+        adminTableModel = new DefaultTableModel(new Object[]{"管理员ID", "管理员姓名", "管理员密码", "管理员邮箱"}, 0);
         adminTable = new JTable(adminTableModel);
         JScrollPane adminsPane = new JScrollPane(adminTable);
         adminPanel.add(adminsPane, BorderLayout.CENTER);
@@ -73,7 +73,8 @@ public class AdminManagementView extends JPanel {
                 adminTableModel.addRow(new Object[]{
                         admin.getAdminid(),
                         admin.getAdminname(),
-                        admin.getPassword()
+                        admin.getPassword(),
+                        admin.getEmail()
                 });
             }
         }
@@ -112,6 +113,7 @@ public class AdminManagementView extends JPanel {
         int adminId = (int) adminTableModel.getValueAt(selectedRow, 0);
         String adminname = (String) adminTableModel.getValueAt(selectedRow, 1);
         String password = (String) adminTableModel.getValueAt(selectedRow, 2);
+        String email = (String) adminTableModel.getValueAt(selectedRow, 3);
 
         JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), "修改管理员", true);
         dialog.setSize(350, 300);
@@ -126,6 +128,8 @@ public class AdminManagementView extends JPanel {
         JTextField adminnameField = new JTextField(adminname);
         JLabel passwordLabel = new JLabel("密码:");
         JTextField passwordField = new JTextField(password);
+        JLabel emailLabel = new JLabel("邮箱:");
+        JTextField emailField = new JTextField(email);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -143,6 +147,14 @@ public class AdminManagementView extends JPanel {
         gbc.gridy = 1;
         panel.add(passwordField, gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(emailLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        panel.add(emailField, gbc);
+
         // 按钮面板
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton confirmButton = new JButton("完成");
@@ -154,14 +166,15 @@ public class AdminManagementView extends JPanel {
 
                 String newAdminName = adminnameField.getText();
                 String newPassword = passwordField.getText();
+                String newEmail = emailField.getText();
 
-                if (adminname.isEmpty() || password.isEmpty()) {
+                if (adminname.isEmpty() || password.isEmpty() || newEmail.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "所有字段不能为空！");
                     return;
                 }
 
                 // 修改管理员
-                Admin updatedAdmin = new Admin(adminId, newAdminName, newPassword);
+                Admin updatedAdmin = new Admin(adminId, newAdminName, newPassword, newEmail);
                 adminController.updateAdmin(updatedAdmin);
 
                 JOptionPane.showMessageDialog(dialog, "管理员已修改");
@@ -182,7 +195,7 @@ public class AdminManagementView extends JPanel {
         buttonPanel.add(cancelButton);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         panel.add(buttonPanel, gbc);
 

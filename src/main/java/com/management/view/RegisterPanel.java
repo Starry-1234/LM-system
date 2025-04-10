@@ -14,7 +14,7 @@ import java.util.Properties;
 public class RegisterPanel extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
-
+    private JTextField emailField;
     private LoginFrame loginFrame;
     private Properties dbProperties;
 
@@ -67,6 +67,17 @@ public class RegisterPanel extends JPanel {
         gbc.gridy = 1;
         registerPanel.add(passwordField, gbc);
 
+        JLabel emailLabel = new JLabel("邮箱：");
+        emailLabel.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        registerPanel.add(emailLabel, gbc);
+
+        emailField = new JTextField(15);
+        emailField.setPreferredSize(new Dimension(emailField.getPreferredSize().width, emailField.getFontMetrics(emailField.getFont()).getHeight() + 5));
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        registerPanel.add(emailField, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton registerButton = new JButton("注册");
@@ -85,7 +96,8 @@ public class RegisterPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (username.isEmpty() || password.isEmpty() ) {
+                String email = emailField.getText();
+                if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
                     JOptionPane.showMessageDialog(RegisterPanel.this, "请输入完整信息", "错误", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
@@ -96,11 +108,11 @@ public class RegisterPanel extends JPanel {
 
                         Class.forName(driver);
                         Connection conn = DriverManager.getConnection(url, dbUsername, dbPassword);
-                        String sql = "INSERT INTO admins (admin_name, admin_password) VALUES (?, ?)";
+                        String sql = "INSERT INTO admins (admin_name, admin_password,email) VALUES (?, ?, ?)";
                         PreparedStatement pstmt = conn.prepareStatement(sql);
                         pstmt.setString(1, username);
                         pstmt.setString(2, password);
-
+                        pstmt.setString(3, email);
                         pstmt.executeUpdate();
                         JOptionPane.showMessageDialog(RegisterPanel.this, "注册成功", "提示", JOptionPane.INFORMATION_MESSAGE);
                         loginFrame.showPanel("login");

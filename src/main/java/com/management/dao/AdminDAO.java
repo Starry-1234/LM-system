@@ -25,7 +25,8 @@ public class AdminDAO {
                 Admin record = new Admin(
                         rs.getInt("admin_id"),
                         rs.getString("admin_name"),
-                        rs.getString("admin_password")
+                        rs.getString("admin_password"),
+                        rs.getString("email")
                 );
                 admins.add(record);
             }
@@ -38,10 +39,11 @@ public class AdminDAO {
 
     // 添加管理员
     public void addAdmin(Admin record) {
-        String sql = "INSERT INTO admins (admin_name, admin_password) VALUES ( ?, ?)";
+        String sql = "INSERT INTO admins (admin_name, admin_password, email) VALUES ( ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, record.getAdminname());
             stmt.setString(2, record.getPassword());
+            stmt.setString(3, record.getEmail());
             stmt.executeUpdate();
         } catch (SQLException e) {}
     }
@@ -60,11 +62,12 @@ public class AdminDAO {
 
     // 修改管理员
     public void updateAdmin(Admin updatedRecord) {
-        String sql = "UPDATE admins SET admin_name = ?, admin_password = ? WHERE admin_id = ?";
+        String sql = "UPDATE admins SET admin_name = ?, admin_password = ?, email =? WHERE admin_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, updatedRecord.getAdminname());
             stmt.setString(2, updatedRecord.getPassword());
-            stmt.setInt(3, updatedRecord.getAdminid());
+            stmt.setString(3, updatedRecord.getEmail());
+            stmt.setInt(4, updatedRecord.getAdminid());
             stmt.executeUpdate();
         } catch(SQLException e) {
             logger.log(Level.SEVERE, "更新管理员失败：" + e.getMessage());
