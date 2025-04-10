@@ -112,11 +112,12 @@ public class LoginPanel extends JPanel {
         });
     }
 
+    // 检查登录信息
     private boolean checkLogin(String username, String password) {
         try (Connection conn = getConnection()) {
             if (conn == null) return false;
 
-            String sql = "SELECT * FROM login WHERE 用户名 = ? AND 密码 = ?";
+            String sql = "SELECT * FROM admins WHERE admin_name = ? AND admin_password = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, username);
             pstmt.setString(2, password);
