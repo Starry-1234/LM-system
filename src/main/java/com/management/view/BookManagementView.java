@@ -30,10 +30,8 @@ public class BookManagementView extends JPanel {
     private JTextField priceField;
     private JTable bookTable;
     private DefaultTableModel tableModel;
-    private String loggerInUserName;// 登录用户的用户名
 
-    public BookManagementView(String username) {
-        this.loggerInUserName = username;// 初始化用户名
+    public BookManagementView() {
         this.borrowController = new BorrowRecordController();// 初始化借阅记录控制器
         setLayout(new BorderLayout());
         JLabel titleLabel = new JLabel("书籍管理", SwingConstants.CENTER);
@@ -45,7 +43,7 @@ public class BookManagementView extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
-/*
+
         gbc.gridx = 0;
         gbc.gridy = 0;
         contentPanel.add(new JLabel("书名:"), gbc);
@@ -131,8 +129,7 @@ public class BookManagementView extends JPanel {
         });
         contentPanel.add(updateButton, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 9;
+        gbc.gridx = 2;
         JButton deleteButton = new JButton("删除书籍");
         deleteButton.addActionListener(new ActionListener() {
             @Override
@@ -140,27 +137,15 @@ public class BookManagementView extends JPanel {
                 deleteBook();
             }
         });
-        contentPanel.add(deleteButton, gbc);*/
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        JButton borrowButton = new JButton(" 借阅选中书籍 ");
-        borrowButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                borrowBook();
-            }
-        });
-        contentPanel.add(borrowButton, gbc);
+        contentPanel.add(deleteButton, gbc);
 
         // 添加查询相关的 UI 元素
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 9;
         JLabel searchLabel = new JLabel("查询书名:");
         contentPanel.add(searchLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 0;
         JTextField searchField = new JTextField();
         searchField.addKeyListener(new KeyListener() {
             @Override
@@ -178,8 +163,8 @@ public class BookManagementView extends JPanel {
         });
         contentPanel.add(searchField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridx = 2;
+        gbc.gridy = 9;
         JButton searchButton = new JButton("查询");
         searchButton.addActionListener(new ActionListener() {
             @Override
@@ -201,7 +186,7 @@ public class BookManagementView extends JPanel {
         loadBooks();
     }
 
-   /* private void addBook() {
+    private void addBook() {
         String title = titleField.getText();
         String author = authorField.getText();
         String isbn = isbnField.getText();
@@ -273,7 +258,6 @@ public class BookManagementView extends JPanel {
         loadBooks();
         clearFields();
     }
-*/
     private void searchBooks(String title) {
         tableModel.setRowCount(0);
         List<Book> books = bookController.findBooksByTitle(title);
@@ -314,41 +298,7 @@ public class BookManagementView extends JPanel {
         }
     }
 
-    // 借阅功能
-    private void borrowBook() {
-        int selectedRow = bookTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "请选择要借阅的书籍");
-            return;
-        }
 
-        int id = (int) tableModel.getValueAt(selectedRow, 0);
-        String isbn = (String) tableModel.getValueAt(selectedRow, 3);
-        String bookname = (String) tableModel.getValueAt(selectedRow, 1);
-        // 获取当前时间
-        Date borrowingTime = new Date();
-
-        Book book = bookController.getBookById(id);
-
-        // 若所选中的书籍的库存数量为0，则提示借阅失败
-        if (book.getStock_Quantity() == 0) {
-            JOptionPane.showMessageDialog(this, "借阅失败，库存数量为0");
-            return;
-        }
-
-        borrowController.addBorrowRecord(new BorrowRecord(isbn, bookname, loggerInUserName, borrowingTime));
-
-        // 更新库存数量
-
-        if (book != null) {
-            book.setStock_Quantity(book.getStock_Quantity() - 1);
-            bookController.updateBook(book);
-        }
-        loadBooks();
-        JOptionPane.showMessageDialog(this, "借阅成功");
-    }
-
-/*
     private void clearFields() {
         titleField.setText("");
         authorField.setText("");
@@ -359,13 +309,12 @@ public class BookManagementView extends JPanel {
         categoryField.setText("");
         priceField.setText("");
     }
-*/
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("书籍管理系统");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // 传递默认用户名"admin"
-        frame.add(new BookManagementView("admin"));
+        frame.add(new BookManagementView());
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

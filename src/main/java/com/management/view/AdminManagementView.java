@@ -1,175 +1,66 @@
 package com.management.view;
 
 import com.management.controller.AdminController;
-import com.management.controller.BookController;
-import com.management.controller.BorrowRecordController;
 import com.management.model.Admin;
-import com.management.model.Book;
-import com.management.dao.BookDAO;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class AdminManagementView extends JPanel {
-    private JTextField titleField;
-    private JTextField authorField;
-    private JTextField isbnField;
     private AdminController adminController;
-    private BookController bookController;
-    private JTable adminTable;// 管理員表
-    private JTable bookTable; //书籍表
-    private DefaultTableModel bookTableModel;
+    private JTable adminTable; // 管理员表
     private DefaultTableModel adminTableModel;
-    private JTextField publisherField;
-    private JTextField publicationDateField;
-    private JTextField stockQuantityField;
-    private JTextField categoryField;
-    private JTextField priceField;
-    private BorrowRecordController borrowrecordController;
 
     public AdminManagementView() {
-        /* 整体布局采用BorderLayout
-         分为四部分
-         上方为“管理员管理”
-         中部为功能按钮
-         东部为当前已有的管理员数据
-         底部显示目前已有的书籍*/
         setLayout(new BorderLayout());
 
-        // 上部
-        JLabel titleLabel = new JLabel("管理员管理", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 24));
-        add(titleLabel, BorderLayout.NORTH);
+        JPanel adminPanel = new JPanel(new BorderLayout());
+        add(adminPanel, BorderLayout.CENTER);
 
-        // 中部采用GridBagLayout布局将按钮分区
-        JPanel adminPanel = new JPanel();
-        adminPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);
-
-        // 初始化所有字段
-        titleField = new JTextField();
-        authorField = new JTextField();
-        isbnField = new JTextField();
-        publisherField = new JTextField();
-        publicationDateField = new JTextField();
-        stockQuantityField = new JTextField();
-        categoryField = new JTextField();
-        priceField = new JTextField();
-
-        // 添加管理员按钮
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        // 管理员操作按钮面板
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton addAdminButton = new JButton("添加管理员");
+        JButton deleteAdminButton = new JButton("删除管理员");
+        JButton updateAdminButton = new JButton("修改管理员");
+
         addAdminButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showAddAdminDialog();
             }
         });
-        adminPanel.add(addAdminButton, gbc);
 
-        // 删除管理员按钮
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        JButton deleteAdminButton = new JButton("删除管理员");
         deleteAdminButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 deleteAdmin();
             }
         });
-        adminPanel.add(deleteAdminButton, gbc);
 
-        // 添加书籍按钮
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        JButton addBookButton = new JButton("添加书籍");
-        addBookButton.addActionListener(new ActionListener() {
+        updateAdminButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showAddBookDialog();
-                loadBooks();
+                showUpdateAdminDialog();
             }
         });
-        adminPanel.add(addBookButton, gbc);
 
-        // 修改书籍按钮
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        JButton updateBookButton = new JButton("修改书籍");
-        updateBookButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showUpdateBookDialog();
-                loadBooks();
-            }
-        });
-        adminPanel.add(updateBookButton, gbc);
+        buttonPanel.add(addAdminButton);
+        buttonPanel.add(deleteAdminButton);
+        buttonPanel.add(updateAdminButton);
+        adminPanel.add(buttonPanel, BorderLayout.NORTH);
 
-        // 删除书籍按钮
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        JButton deleteBookButton = new JButton("删除书籍");
-        deleteBookButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteBook();
-            }
-        });
-        adminPanel.add(deleteBookButton, gbc);
-
-        // 中部
-        add(adminPanel, BorderLayout.CENTER);
-
-        // 下部
-        // Table to display books
-        bookTableModel = new DefaultTableModel(new Object[]{"ID", "书名", "作者", "ISBN", "出版社", "出版日期", "库存数量", "分类", "价格"}, 0);
-        bookTable = new JTable(bookTableModel);
-        JScrollPane bookPane = new JScrollPane(bookTable);
-        add(bookPane, BorderLayout.SOUTH);
-
-        bookController = new BookController();
-        loadBooks();
-
-        // 东部放目前已有的管理员数据
+        // 管理员表格
         adminTableModel = new DefaultTableModel(new Object[]{"管理员ID", "管理员姓名", "管理员密码"}, 0);
         adminTable = new JTable(adminTableModel);
         JScrollPane adminsPane = new JScrollPane(adminTable);
-        add(adminsPane, BorderLayout.EAST);
+        adminPanel.add(adminsPane, BorderLayout.CENTER);
 
         adminController = new AdminController();
         loadAdmins();
-    }
-
-    // 加载书籍数据
-    public void loadBooks() {
-        // 清空表格模型中的所有行
-        bookTableModel.setRowCount(0);
-        List<Book> books = bookController.getAllBooks();
-        if (books != null) {
-            for (Book book : books) {
-                bookTableModel.addRow(new Object[]{
-                        book.getId(),
-                        book.getTitle(),
-                        book.getAuthor(),
-                        book.getIsbn(),
-                        book.getPublisher(),
-                        new SimpleDateFormat("yyyy-MM-dd").format(book.getPublicationDate()),
-                        book.getStock_Quantity(),
-                        book.getCategory(),
-                        book.getPrice()
-                });
-            }
-        }
     }
 
     // 加载管理员数据
@@ -196,7 +87,7 @@ public class AdminManagementView extends JPanel {
         loadAdmins();
     }
 
-    //删除管理员
+    // 删除管理员
     private void deleteAdmin() {
         int selectedRow = adminTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -210,48 +101,93 @@ public class AdminManagementView extends JPanel {
         loadAdmins();
     }
 
-    // 显示添加书籍对话框
-    private void showAddBookDialog() {
-        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        AddBookDialog addBookDialog = new AddBookDialog(parentFrame, bookController);
-        addBookDialog.setVisible(true);
-    }
-
-    // 显示修改书籍对话框
-    private void showUpdateBookDialog() {
-        int selectedRow = bookTable.getSelectedRow();
+    // 显示修改管理员对话框
+    private void showUpdateAdminDialog() {
+        int selectedRow = adminTable.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "请选择要更新的书籍");
+            JOptionPane.showMessageDialog(this, "请选择要修改的管理员");
             return;
         }
 
-        int id = (int) bookTableModel.getValueAt(selectedRow, 0);
-        Book book = bookController.getBookById(id);
-        if (book != null) {
-            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            UpdateBookDialog updateBookDialog = new UpdateBookDialog(parentFrame, bookController, book);
-            updateBookDialog.setVisible(true);
-            loadBooks();
-        } else {
-            JOptionPane.showMessageDialog(this, "书籍信息获取失败");
-        }
+        int adminId = (int) adminTableModel.getValueAt(selectedRow, 0);
+        String adminname = (String) adminTableModel.getValueAt(selectedRow, 1);
+        String password = (String) adminTableModel.getValueAt(selectedRow, 2);
+
+        JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), "修改管理员", true);
+        dialog.setSize(350, 300);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel adminnameLabel = new JLabel("管理员名:");
+        JTextField adminnameField = new JTextField(adminname);
+        JLabel passwordLabel = new JLabel("密码:");
+        JTextField passwordField = new JTextField(password);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(adminnameLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        panel.add(adminnameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(passwordLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        panel.add(passwordField, gbc);
+
+        // 按钮面板
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton confirmButton = new JButton("完成");
+        JButton cancelButton = new JButton("取消");
+
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                String newAdminName = adminnameField.getText();
+                String newPassword = passwordField.getText();
+
+                if (adminname.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "所有字段不能为空！");
+                    return;
+                }
+
+                // 修改管理员
+                Admin updatedAdmin = new Admin(adminId, newAdminName, newPassword);
+                adminController.updateAdmin(updatedAdmin);
+
+                JOptionPane.showMessageDialog(dialog, "管理员已修改");
+                loadAdmins();
+                dialog.dispose();
+
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+
+        buttonPanel.add(confirmButton);
+        buttonPanel.add(cancelButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        panel.add(buttonPanel, gbc);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
     }
-
-
-    // 删除书籍
-    private void deleteBook() {
-        int selectedRow = bookTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "请选择要删除的书籍");
-            return;
-        }
-
-        int id = (int) bookTableModel.getValueAt(selectedRow, 0);
-        bookController.deleteBook(id);
-        JOptionPane.showMessageDialog(this, "书籍已删除");
-        loadBooks();
-
-    }
-
 
 }

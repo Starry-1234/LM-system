@@ -15,7 +15,7 @@ public class AdminDAO {
         this.conn = conn;
     }
 
-    // 获取所有用户
+    // 获取所有管理员
     public List<Admin> getAllAdmins() {
         List<Admin> admins = new ArrayList<>();
         String sql = "SELECT * FROM library.admins ORDER BY admin_id";
@@ -58,18 +58,18 @@ public class AdminDAO {
         }
     }
 
-    // 编辑管理员
+    // 修改管理员
     public void updateAdmin(Admin updatedRecord) {
-        String sql = "UPDATE library.Admin SET admin_name = ?, admin_password = ? WHERE adminid = ?";
+        String sql = "UPDATE admins SET admin_name = ?, admin_password = ? WHERE admin_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, updatedRecord.getAdminname());
             stmt.setString(2, updatedRecord.getPassword());
             stmt.setInt(3, updatedRecord.getAdminid());
             stmt.executeUpdate();
-        } catch(SQLException e) {}
+        } catch(SQLException e) {
+            logger.log(Level.SEVERE, "更新管理员失败：" + e.getMessage());
+            e.printStackTrace();
+        }
     }
-
-
-
 }
 

@@ -86,7 +86,7 @@ public class LoginPanel extends JPanel {
                     Connection conn = getConnection();
                     if (conn != null) {
                         loginFrame.dispose(); // 关闭登录窗口
-                        MainFrame mainFrame = new MainFrame(conn, username); // 使用带参构造函数
+                        MainFrame mainFrame = new MainFrame(conn); // 使用带参构造函数
                         mainFrame.setVisible(true);
                     } else {
                         JOptionPane.showMessageDialog(LoginPanel.this, "无法获取数据库连接", "错误", JOptionPane.ERROR_MESSAGE);

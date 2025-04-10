@@ -53,9 +53,4 @@ public class BorrowRecordController {
         return borrowRecordDAO.searchBorrowRecordsByisbn(isbn);
     }
 
-    // 添加借阅记录
-    public void addBorrowRecord(BorrowRecord borrowRecord) {
-        borrowRecordDAO.addBorrowRecord(borrowRecord);
-    }
-
 }

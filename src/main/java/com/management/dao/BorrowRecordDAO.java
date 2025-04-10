@@ -142,19 +142,6 @@ public class BorrowRecordDAO {
         return borrowRecords;
     }
 
-    // 添加借阅记录
-    public void addBorrowRecord(BorrowRecord borrowRecord) {
-        String sql = "INSERT INTO library.BorrowRecord (isbn, book_name, borrower, borrowing_time) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, borrowRecord.getISBN());
-            pstmt.setString(2, borrowRecord.getBookName());
-            pstmt.setString(3, borrowRecord.getBorrower());
-            pstmt.setDate(4, new java.sql.Date(borrowRecord.getBorrowingTime().getTime()));
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "添加借阅记录失败：" + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+
 }
 

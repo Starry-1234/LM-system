@@ -46,4 +46,9 @@ public class AdminController {
     public void deleteAdmin(int id) {
         adminDAO.deleteAdmin(id);
     }
+
+    // 修改管理员
+    public void updateAdmin(Admin updatedAdmin) {
+        adminDAO.updateAdmin(updatedAdmin);
+    }
 }
