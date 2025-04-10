@@ -52,7 +52,7 @@ public class MainFrame extends JFrame {
         // 添加按钮到左侧边栏
         addSideBarButton("书籍管理", "BookManagement");
         addSideBarButton("借阅记录", "BorrowRecord");
-        addSideBarButton("用户管理", "UserManagement");
+        addSideBarButton("读者管理", "UserManagement");
         addSideBarButton("管理员管理", "AdminManagement");
         addSideBarButton("公告信息", "Announcement");
 
